@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>氢能跃迁棋 🌍🔋</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #000c3c, #00331a);
+            font-family: 'Segoe UI Emoji', sans-serif;
+            color: #e0f7fa;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            box-shadow: 0 0 20px #00ffcc;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .cell {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #00ffcc;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            min-height: 120px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cell:hover {
+            transform: scale(1.02);
+            background: #00ffcc;
+            color: #003333;
+        }
+
+        .dimension-title {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #003333;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(0, 255, 204, 0.2);
+            border-radius: 10px;
+        }
+
+        .resource {
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #00ffcc;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .controls button:hover {
+            background: #00cccc;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .resource-change {
+            position: absolute;
+            animation: pop 0.6s ease-in-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .success {
+            animation: successGlow 1s ease-in-out infinite;
+        }
+
+        @keyframes successGlow {
+            0%, 100% { box-shadow: 0 0 10px #00ffcc; }
+            50% { box-shadow: 0 0 20px #00cccc; }
+        }
+
+        .locked {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .locked::after {
+            content: '🔒';
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            color: red;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #b0bec5;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>氢能跃迁棋 🚗💨</h1>
+        
+        <div class="status-bar">
+            <div class="resource">🌱 绿氢积分: <span id="greenHydrogen">100</span></div>
+            <div class="resource">🌐 碳信用: <span id="carbonCredit">50</span></div>
+            <div class="resource">🔬 技术点: <span id="techPoint">20</span></div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <div class="controls">
+            <button onclick="buildStation()">⛽ 建设节点</button>
+            <button onclick="researchTech()">🔬 技术研发</button>
+            <button onclick="policyInnovation()">📜 制度创新</button>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="instructions">
+            <div>🔧 核心机制：</div>
+            <div>1. 通过三大行动积累资源</div>
+            <div>2. 点击里程碑格子直接购买</div>
+            <div>3. 完成任意终局组合即可通关</div>
+            
+            <div style="margin-top: 15px;">🎯 胜利目标：</div>
+            <div>技术突围：无铂电堆 + 镁基储氢 + 绿氢倒挂</div>
+            <div>产业跃迁：西氢东送 + 输氢管道 + 氢能重卡</div>
+            <div>制度创新：碳税机制 + 标准互认 + 绿氢倒挂</div>
+            路径顺序：铂催化剂替代(0) → 固态储氢突破(1) → 风光氢一体化(2) → 无铂电堆量产(8) → 镁基储氢商用(9) → 绿氢价格倒挂(10)<br>
+            路径顺序：氢能重卡渗透(3) → 输氢管道网络(4) → 西氢东送成型(11)<br>
+            路径顺序：碳税机制建立(5) → 跨域标准互认(6) → 绿氢价格倒挂(10)
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const greenHydrogen = document.getElementById('greenHydrogen');
+        const carbonCredit = document.getElementById('carbonCredit');
+        const techPoint = document.getElementById('techPoint');
+        const message = document.getElementById('message');
+
+        let resources = {
+            greenHydrogen: 200,
+            carbonCredit: 80,
+            techPoint: 90
+        };
+
+        const dimensions = ['技术','产业','制度'];
+        
+        const milestones = [
+            { name: '铂催化剂替代', cost: { greenHydrogen: 30, techPoint: 10 }, effect: '电堆成本下降15%' },
+            { name: '固态储氢突破', cost: { greenHydrogen: 40, techPoint: 15 }, effect: '储氢密度+20%' },
+            { name: '风光氢一体化', cost: { greenHydrogen: 50, carbonCredit: 20 }, effect: '制氢效率+25%' },
+            { name: '氢能重卡渗透', cost: { greenHydrogen: 60, carbonCredit: 30 }, effect: '运输成本-15%' },
+            { name: '输氢管道网络', cost: { greenHydrogen: 70, carbonCredit: 40 }, effect: '运输损耗-30%' },
+            { name: '碳税机制建立', cost: { carbonCredit: 25, techPoint: 5 }, effect: '氢能补贴+20%' },
+            { name: '跨域标准互认', cost: { carbonCredit: 35, techPoint: 10 }, effect: '建设效率+30%' },
+            { name: '氢能里程订阅', cost: { carbonCredit: 45, techPoint: 15 }, effect: '运营收益+25%' },
+            { name: '无铂电堆量产', cost: { techPoint: 20, greenHydrogen: 80 }, effect: '电堆成本突破' },
+            { name: '镁基储氢商用', cost: { techPoint: 25, greenHydrogen: 90 }, effect: '续航突破1500km' },
+            { name: '绿氢价格倒挂', cost: { techPoint: 30, carbonCredit: 50 }, effect: '产业化拐点' },
+            { name: '西氢东送成型', cost: { techPoint: 35, carbonCredit: 60 }, effect: '氢能沙特建成' }
+        ];
+
+        function createBoard() {
+            board.innerHTML = '';
+            milestones.forEach((milestone, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.index = index;
+                cell.innerHTML = `
+                    <div class="dimension-title">${dimensions[Math.floor(index/4)]} 🌐</div>
+                    <strong>${milestone.name}</strong><br>
+                    成本: ${formatCost(milestone.cost)}<br>
+                    效果: ${milestone.effect}
+                `;
+                
+                // 直接绑定购买事件
+                cell.addEventListener('click', () => {
+                    attemptPurchase(index);
+                });
+                
+                board.appendChild(cell);
+            });
+        }
+
+        function formatCost(cost) {
+            return Object.entries(cost).map(([key, value]) => 
+                key.replace('greenHydrogen', '🌱').replace('carbonCredit', '🌐').replace('techPoint', '🔬') + value
+            ).join(' ');
+        }
+
+        function attemptPurchase(index) {
+            const milestone = milestones[index];
+            if (!milestone) return;
+            
+            if (checkAfford(index)) {
+                // 扣除资源
+                Object.entries(milestone.cost).forEach(([key, value]) => {
+                    resources[key] -= value;
+                });
+                
+                updateResources();
+                showMessage(`✅ 解锁 "${milestone.name}" 🌟`);
+                
+                // 标记为已购买
+                const cell = document.querySelector(`.cell[data-index='${index}']`);
+                cell.classList.add('locked', 'success');
+                cell.onclick = null;
+                
+                // 检查胜利条件
+                checkWinCondition(milestone);
+            } else {
+                document.querySelector('.status-bar').classList.add('shake');
+                setTimeout(() => {
+                    document.querySelector('.status-bar').classList.remove('shake');
+                }, 500);
+                showMessage("❌ 资源不足 💡");
+            }
+        }
+
+        function checkAfford(index) {
+            return Object.entries(milestones[index].cost).every(
+                ([key, value]) => resources[key] >= value
+            );
+        }
+
+        function updateResources() {
+            Object.entries(resources).forEach(([key, value]) => {
+                const el = document.getElementById(key);
+                const delta = value - parseInt(el.textContent);
+                el.textContent = value;
+                
+                // 添加动态效果
+                const change = document.createElement('div');
+                change.className = 'resource-change';
+                change.style.position = 'absolute';
+                change.style.color = delta > 0 ? '#00ffcc' : '#ff3333';
+                change.textContent = `${delta > 0 ? '↑' : '↓'}${Math.abs(delta)}`;
+                change.style.opacity = '0.7';
+                change.style.fontSize = '0.8em';
+                change.style.transition = 'opacity 1s';
+                el.parentElement.appendChild(change);
+                
+                setTimeout(() => {
+                    change.style.opacity = '0';
+                    setTimeout(() => change.remove(), 1000);
+                }, 100);
+            });
+        }
+
+        function checkWinCondition(milestone) {
+            const owned = Array.from(document.querySelectorAll('.locked')).map(
+                el => parseInt(el.dataset.index)
+            );
+            
+            // 检查所有胜利条件
+            const routes = {
+                '🔬 技术突围': [8, 9, 10],
+                '🏭 产业跃迁': [3, 4, 11],
+                '📜 制度创新': [5, 6, 10]
+            };
+
+            for(const [routeName, targets] of Object.entries(routes)) {
+                if(targets.every(i => owned.includes(i))) {
+                    setTimeout(() => {
+                        message.textContent = `🎉 恭喜！达成${routeName} 🎉`;
+                        message.className = 'message show';
+                    }, 1000);
+                    break;
+                }
+            }
+        }
+
+        function buildStation() {
+            if (resources.greenHydrogen >= 20) {
+                resources.greenHydrogen -= 20;
+                resources.carbonCredit += 10;
+                updateResources();
+                showMessage("⛽ 新建加氢站！碳信用+10 🌱");
+            } else {
+                showMessage("资源不足！需要至少20🌱 💥");
+            }
+        }
+
+        function researchTech() {
+            if (resources.techPoint >= 5) {
+                resources.techPoint -= 5;
+                resources.greenHydrogen += Math.floor(Math.random() * 10) + 25;
+                updateResources();
+                showMessage("🔬 技术突破！绿氢产量+随机提升 🌟");
+            } else {
+                showMessage("技术点不足！需要至少5🔬 💡");
+            }
+        }
+
+        function policyInnovation() {
+            if (resources.carbonCredit >= 10) {
+                resources.carbonCredit -= 10;
+                resources.techPoint += 19;
+                updateResources();
+                showMessage("📜 政策创新！技术点+19 🧠");
+            } else {
+                showMessage("碳信用不足！需要至少10🌐 💡");
+            }
+        }
+
+        function showMessage(text) {
+            message.textContent = text;
+            message.className = 'message show';
+            setTimeout(() => {
+                message.className = 'message';
+            }, 3000);
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>

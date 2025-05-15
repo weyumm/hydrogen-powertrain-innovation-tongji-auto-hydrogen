@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>氢能跃迁导航中心 🌍🔋</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #000c3c, #00331a);
+            font-family: 'Segoe UI Emoji', sans-serif;
+            color: #e0f7fa;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            text-shadow: 0 0 15px #00ffcc;
+            margin-bottom: 40px;
+            background: linear-gradient(90deg, #00f2ff, #00cc88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .nav-card {
+            background: rgba(0, 255, 204, 0.1);
+            border: 2px solid #00ffcc;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);
+            background: rgba(0, 255, 204, 0.2);
+        }
+
+        .nav-card h2 {
+            margin: 15px 0;
+            color: #00ffcc;
+            font-size: 1.5em;
+        }
+
+        .nav-card p {
+            color: #b0bec5;
+            font-size: 0.9em;
+        }
+
+        .icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 5px #00ffcc);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>氢能跃迁导航中心 🚀</h1>
+        
+        <div class="nav-grid">
+            <a href="knowledge_graph.html" class="nav-card">
+                <div class="icon">🌐</div>
+                <h2>知识图谱</h2>
+                <p>探索氢能技术三维关联网络</p>
+            </a>
+
+            <a href="game.html" class="nav-card">
+                <div class="icon">🎮</div>
+                <h2>战略博弈</h2>
+                <p>体验氢能产业化路径选择</p>
+            </a>
+
+            <a href="question.html" class="nav-card">
+                <div class="icon">❓</div>
+                <h2>知识挑战</h2>
+                <p>测试氢能技术认知水平</p>
+            </a>
+        </div>
+
+        <!-- 新增论文主题描述 -->
+        <div class="description-box">
+            <h2>🚀 三维跃迁路径研究核心</h2>
+            <div class="research-points">
+                <p>🔋 <strong>技术突围:</strong> 突破储氢材料、燃料电池电堆等12项卡脖子技术</p>
+                <p>🏭 <strong>产业跃迁:</strong> 构建氢能重卡-输氢管网-加氢站三位一体产业链</p>
+                <p>🌐 <strong>生态重构:</strong> 碳税机制驱动绿氢价格倒挂的市场生态</p>
+            </div>
+            <div class="dynamic-text">
+                <p>📜 本研究通过<span class="highlight">技术路线图博弈</span>与<span class="highlight">政策模拟推演</span>，揭示氢基能源代际跃迁的...</p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* 新增样式 */
+        .description-box {
+            background: linear-gradient(145deg, #002b36, #004d40);
+            border: 2px solid #00ffcc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .research-points p {
+            font-size: 1.1em;
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .research-points p::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: rgba(0,255,204,0.3);
+            border-radius: 4px;
+        }
+
+        .dynamic-text {
+            border-top: 1px dashed #00ffcc;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .highlight {
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0,255,204,0.5);
+        }
+    </style>
+</body>
+</html>

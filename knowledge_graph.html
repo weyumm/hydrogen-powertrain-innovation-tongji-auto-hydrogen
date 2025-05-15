@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>氢能三维跃迁知识图谱 🌍🔋</title>
+    <script src="https://d3js.org/d3.v7.min.js "></script> <!-- 修复CDN链接 -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #000c3c, #00331a);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        svg {
+            width: 100vw;
+            height: 100vh;
+        }
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 1.5px;
+        }
+        .node {
+            cursor: pointer;
+        }
+        .label {
+            font: 12px sans-serif;
+            pointer-events: none;
+            fill: white;
+        }
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .color-box {
+            width: 12px;
+            height: 12px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 图例 -->
+    <div class="legend">
+        <div class="legend-item"><div class="color-box" style="background:#00f2ff"></div> 技术维度</div>
+        <div class="legend-item"><div class="color-box" style="background:#00cc88"></div> 产业维度</div>
+        <div class="legend-item"><div class="color-box" style="background:#cc66cc"></div> 制度维度</div>
+        <div class="legend-item"><div class="color-box" style="background:#ff9900"></div> 应用场景</div>
+    </div>
+
+    <!-- SVG容器 -->
+    <svg></svg>
+
+    <script>
+        // 数据定义
+        const data = {
+            nodes: [
+                // 维度节点（增强权重）
+                {id: "技术维度", group: "dimension", weight: 3},
+                {id: "产业维度", group: "dimension", weight: 3},
+                {id: "制度维度", group: "dimension", weight: 3},
+
+                // 技术节点
+                {id: "无铂电堆量产", group: "technology"},
+                {id: "固态储氢突破", group: "technology"},
+                {id: "SOEC电解槽", group: "technology"},
+                {id: "IV型储氢瓶", group: "technology"},
+                {id: "氢电互补技术", group: "technology"},
+
+                // 产业节点
+                {id: "氢能重卡渗透", group: "industry"},
+                {id: "输氢管道网络", group: "industry"},
+                {id: "加氢站建设", group: "industry"},
+                {id: "车网互动", group: "industry"},
+                {id: "氢能港口", group: "industry"},
+
+                // 制度节点
+                {id: "碳税机制", group: "policy"},
+                {id: "标准互认", group: "policy"},
+                {id: "绿氢补贴", group: "policy"},
+                {id: "碳交易市场", group: "policy"},
+                {id: "跨省配额", group: "policy"},
+
+                // 应用场景
+                {id: "山东重卡", group: "scenario"},
+                {id: "长三角集群", group: "scenario"},
+                {id: "张家口冬奥", group: "scenario"},
+                {id: "上海港运输", group: "scenario"}
+            ],
+            links: [
+                // 维度关联（双向）
+                {source: "技术维度", target: "产业维度", value: 3},
+                {source: "产业维度", target: "制度维度", value: 3},
+                {source: "制度维度", target: "技术维度", value: 3},
+
+                // 技术维度关联
+                {source: "技术维度", target: "无铂电堆量产"},
+                {source: "技术维度", target: "固态储氢突破"},
+                {source: "技术维度", target: "SOEC电解槽"},
+                {source: "技术维度", target: "IV型储氢瓶"},
+                {source: "技术维度", target: "氢电互补技术"},
+
+                // 产业维度关联
+                {source: "产业维度", target: "氢能重卡渗透"},
+                {source: "产业维度", target: "输氢管道网络"},
+                {source: "产业维度", target: "加氢站建设"},
+                {source: "产业维度", target: "车网互动"},
+                {source: "产业维度", target: "氢能港口"},
+
+                // 制度维度关联
+                {source: "制度维度", target: "碳税机制"},
+                {source: "制度维度", target: "标准互认"},
+                {source: "制度维度", target: "绿氢补贴"},
+                {source: "制度维度", target: "碳交易市场"},
+                {source: "制度维度", target: "跨省配额"},
+
+                // 技术-产业关联
+                {source: "无铂电堆量产", target: "氢能重卡渗透", value: 2},
+                {source: "固态储氢突破", target: "输氢管道网络", value: 2},
+                {source: "SOEC电解槽", target: "加氢站建设", value: 2},
+                {source: "IV型储氢瓶", target: "车网互动", value: 2},
+
+                // 产业-制度关联
+                {source: "氢能重卡渗透", target: "碳税机制", value: 2},
+                {source: "输氢管道网络", target: "标准互认", value: 2},
+                {source: "加氢站建设", target: "绿氢补贴", value: 2},
+                {source: "车网互动", target: "碳交易市场", value: 2},
+
+                // 场景关联
+                {source: "山东重卡", target: "氢能重卡渗透", value: 1.5},
+                {source: "长三角集群", target: "输氢管道网络", value: 1.5},
+                {source: "张家口冬奥", target: "车网互动", value: 1.5},
+                {source: "上海港运输", target: "氢能港口", value: 1.5}
+            ]
+        };
+
+        // SVG初始化
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const svg = d3.select("svg")
+            .attr("viewBox", [0, 0, width, height])
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+        // 力模拟优化
+        const simulation = d3.forceSimulation(data.nodes)
+            .force("link", d3.forceLink().id(d => d.id).distance(d => d.value ? d.value * 40 : 80))
+            .force("charge", d3.forceManyBody().strength(-120).distanceMax(300))
+            .force("center", d3.forceCenter(width/2, height/2))
+            .force("collision", d3.forceCollide().radius(30).strength(0.8));
+
+        // 创建连线
+        const link = svg.append("g")
+            .selectAll("line")
+            .data(data.links)
+            .enter().append("line")
+            .attr("class", "link")
+            .attr("stroke-width", d => Math.max(1, d.value));
+
+        // 创建节点
+        const node = svg.append("g")
+            .selectAll("circle")
+            .data(data.nodes)
+            .enter().append("circle")
+            .attr("r", d => d.weight ? d.weight * 8 : 6)
+            .attr("fill", d => getColor(d.group))
+            .call(drag(simulation))
+            .on("click", (event, d) => {
+                alert(`节点信息：\n${d.id}\n类型：${d.group}`);
+            });
+
+        // 创建标签
+        const labels = svg.append("g")
+            .selectAll("text")
+            .data(data.nodes)
+            .enter().append("text")
+            .text(d => d.id)
+            .attr("class", "label")
+            .attr("dx", 15)
+            .attr("dy", 5);
+
+        // 初始化位置
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node.attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+
+            labels.attr("x", d => d.x)
+                  .attr("y", d => d.y);
+        });
+
+        // 颜色映射
+        function getColor(group) {
+            return {
+                "dimension": "#cc66cc",
+                "technology": "#00f2ff",
+                "industry": "#00cc88",
+                "policy": "#cc66cc",
+                "scenario": "#ff9900"
+            }[group] || "#FFA07A";
+        }
+
+        // 拖拽交互
+        function drag(simulation) {
+            return d3.drag()
+                .on("start", (event, d) => {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                })
+                .on("drag", (event, d) => {
+                    d.fx = event.x;
+                    d.fy = event.y;
+                })
+                .on("end", (event, d) => {
+                    d.fx = null;
+                    d.fy = null;
+                });
+        }
+    </script>
+</body>
+</html>

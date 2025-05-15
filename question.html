@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>氢能跃迁大冒险 🚗💨</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: linear-gradient(135deg, #00f2ff, #00c97f);
+            font-family: 'Segoe UI Emoji', sans-serif;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #0ff;
+        }
+
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {transform: translateY(0);}
+            50% {transform: translateY(-10px);}
+        }
+
+        .options button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: #00ffcc;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        .options button:hover {
+            transform: scale(1.05);
+            background: #00ffcc;
+            color: #003333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.5s ease;
+        }
+
+        .active {
+            background: #00ffcc;
+            color: #003333;
+            box-shadow: 0 0 15px #00ffcc;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1.5em;
+            margin-top: 30px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>氢基能源跃迁大挑战 🌍🔋</h1>
+        
+        <div class="progress-bar">
+            <div class="step" id="step1">🌱</div>
+            <div class="step" id="step2">🔬</div>
+            <div class="step" id="step3">🏭</div>
+            <div class="step" id="step4">🌐</div>
+        </div>
+
+        <div id="game">
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+            <div class="message" id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "氢能汽车的核心优势是什么？",
+                options: ["质量能量密度高", "充电快", "价格低", "噪音小"],
+                correct: 0,
+                emoji: "🔋"
+            },
+            {
+                q: "哪个场景最适合氢能重卡？",
+                options: ["城市通勤", "长途物流", "地铁运输", "短途公交"],
+                correct: 1,
+                emoji: "🚚"
+            },
+            {
+                q: "当前燃料电池的主要瓶颈是？",
+                options: ["续航短", "铂催化剂成本", "充电慢", "低温性能差"],
+                correct: 1,
+                emoji: "📉"
+            },
+            {
+                q: "哪种储氢技术最具前景？",
+                options: ["高压气态", "液态储氢", "固态储氢", "管道运输"],
+                correct: 2,
+                emoji: "🧪"
+            }
+        ];
+
+        let current = 0;
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const messageEl = document.getElementById('message');
+
+        function showQuestion() {
+            const q = questions[current];
+            questionEl.textContent = q.q;
+            optionsEl.innerHTML = '';
+            
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(i);
+                optionsEl.appendChild(btn);
+            });
+            
+            updateProgress();
+        }
+
+        function checkAnswer(index) {
+            const q = questions[current];
+            if (index === q.correct) {
+                showMessage(q.emoji + ' 正确！' + q.emoji);
+                current++;
+                if (current < questions.length) {
+                    setTimeout(showQuestion, 1500);
+                } else {
+                    setTimeout(() => {
+                        document.getElementById('message').textContent = '🎉 跃迁成功！氢能未来已来 🎉';
+                        document.getElementById('message').className = 'message show';
+                    }, 1000);
+                }
+            } else {
+                showMessage('❌ 错误！再想想？');
+            }
+        }
+
+        function showMessage(text) {
+            messageEl.textContent = text;
+            messageEl.className = 'message show';
+            setTimeout(() => {
+                messageEl.className = 'message';
+            }, 2000);
+        }
+
+        function updateProgress() {
+            for (let i = 0; i <= current; i++) {
+                document.getElementById('step' + (i+1)).classList.add('active');
+            }
+        }
+
+        showQuestion();
+    </script>
+</body>
+</html>
